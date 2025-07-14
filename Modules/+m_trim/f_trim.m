@@ -1,5 +1,5 @@
 function wf = f_trim(altitude_m, mach_nb, isa_dev, ...
-    weight, xcg, geom)
+    plane)
 %F_TRIM Summary of this function goes here
 %   Detailed explanation goes here
 

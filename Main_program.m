@@ -4,8 +4,8 @@ close all; clear; clc
 % Ajout des dossiers / fonctions du programme
 addpath('Aircraft/', 'Modules/');
 
-%% % Définition des données géométriques de l'avion
-% Données de l'aile
+load('Aircraft/aero_data.mat');
+
 geom_data.wing.S_ref = 859;
 geom_data.wing.c_ref = 11;
 
@@ -19,6 +19,12 @@ geom_data.engine.z_ref_23 = 1.60;
 
 geom_data.engine.x_ref_14 = 1.70;
 geom_data.engine.z_ref_14 = 0.50;
+
+
+A380 = m_plane.Plane(geom_data, aero_data, 500000, 40);
+
+%% % Définition des données géométriques de l'avion
+% Données de l'aile
 
 %% %
 m_convert.f_length(10000, 'ft', 'm')
