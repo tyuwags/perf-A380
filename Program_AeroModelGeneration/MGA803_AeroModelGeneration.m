@@ -1,6 +1,8 @@
 % Préparation de l'environement Matlab
 close all; clear; clc
 
+mkdir 'Outputs'
+
 % Ajout des dossier pour le programme
 addpath('Program files/', 'Outputs/')
 
@@ -12,7 +14,7 @@ computer_type = 'MAC';     % Si vous êtes sur Mac
 % Chemin où se trouve les fichiers *.history pour l'aile+fuselage, et pour
 % l'empennage arrière. Notez que si vous laissez '' sur les champs, alors
 % le programme vous demandera de chercher les fichiers avec une fenêtre.
-% Sinon, il cherchera le fichier en fonction du chemin spécifié dans la
+% sindon, il cherchera le fichier en fonction du chemin spécifié dans la
 % variable 'locataion_xx', et le nom du fichier 'filename_xx'.
 
 % Pour l'aile et le fuselage:
@@ -124,6 +126,7 @@ aero_data.f_cdht = f_cdht;
 % Sauvegarde de la structure aero_data dans le dossier 'Output'
 fprintf('* Sauvegarde de la structure ''aero_data'' dans le dossier Output.\n')
 save('Outputs/aero_data', 'aero_data', '-mat')
+
 
 %% % Interpolation d'un coefficient en fonction de alpha et mach
 alpha = 10; mach = 1.0;

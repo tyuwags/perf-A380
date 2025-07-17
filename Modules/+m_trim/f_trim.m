@@ -18,7 +18,7 @@ fn = 0.4 * fn_max;
 
 condition = true;
 
-V_t = m_convert.f_mach_to_tas(mach_nb);
+V_t = m_convert.f_mach_to_tas(mach_nb, altitude_m, isa_dev);
 rho = m_atmos.f_pressure(altitude_m, isa_dev);
 
 while condition
@@ -26,19 +26,23 @@ while condition
     delta_0 = delta; 
     fn_0 = fn; 
     
-    L = weight * g0 - fn * sin(alpha + phi_t);
+    L = plane.weight * g0 - fn * sind(alpha + phi_t);
     q = 1/2 * rho * V_t^2;
-    Cl = L / (q*geom.wing.S_ref);
+    Cl = L / (q*plane.wingArea);
 
-    alpha = fzero(@(a) CL(a) - Cl, alpha); % changer Cl pour m_aero.CL
-    D = q * geom.wing.S_ref * CD(alpha, delta);
+    [cls, cds, cms] = m_aero.f_aero_coeffs(plane, alpha, mach_nb, delta);
 
-    fn = D/(cos(alpha + phi_t));
+    alpha = fzero(@(a) cls - Cl, alpha);
+    D = q * plane.wingArea * cds;
 
-    delta = fzero(@(stab) m_aero.f_moment(alpha, delta, fn) + m_engine.f_moment(fn), delta);
+    fn = D/(cosd(alpha + phi_t));
+
+    delta = fzero(@(stab) m_aero.f_moment(alpha, delta, fn, cms, plane.xcg - plane.xac, altitude_m, isa_dev, mach_nb, plane) - m_engine.f_moment(plane, fn, phi_t), delta);
 
     condition = eps_alpha > abs(alpha - alpha_0) || eps_delta > abs(delta - delta_0) || eps_fn > abs(fn - fn_0);
     
 end
+
+wf = m_engine.f_thrust_to_fuel(altitude_m, mach_nb, isa_dev, fn);
 
 end

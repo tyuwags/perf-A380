@@ -21,7 +21,13 @@ classdef Plane
         weight
 
         % Centre de gravité
+        hcg
         xcg
+
+        % Centre aérodynamique
+        hac
+        xac
+        
     end
 
     methods
@@ -31,8 +37,8 @@ classdef Plane
                 geom = varargin{1};
 
                 % Vérifications minimales
-                if nargin < 4
-                    error('En mode structuré, utilisez : Plane(geom_data, aeroCoeffs, weight, xcg)');
+                if nargin < 5
+                    error('En mode structuré, utilisez : Plane(geom_data, aeroCoeffs, weight, hcg, hac)');
                 end
 
                 obj.wingArea = geom.wing.S_ref;
@@ -42,13 +48,14 @@ classdef Plane
                 obj.stabX = geom.stab.x_ref;
                 obj.stabZ = geom.stab.z_ref;
 
-                obj.numEngines = 4; % par défaut
+                obj.numEngines = 4; % À modifier
                 obj.enginePosCenter = [geom.engine.x_ref_23, geom.engine.z_ref_23];
                 obj.enginePosOuter  = [geom.engine.x_ref_14, geom.engine.z_ref_14];
 
                 obj.aeroCoeffs = varargin{2}; % ex: aero_data
                 obj.weight = varargin{3};
-                obj.xcg = varargin{4};
+                obj.hcg = varargin{4};
+                obj.hac = varargin{5};
 
             elseif nargin >= 11
                 % --- Mode à l'ancienne : tous les champs à la main ---
@@ -62,10 +69,13 @@ classdef Plane
                 obj.enginePosOuter = varargin{8};
                 obj.aeroCoeffs = varargin{9};
                 obj.weight = varargin{10};
-                obj.xcg = varargin{11};
+                obj.hcg = varargin{11};
+                obj.hac = varargin{12};
             else
                 error('Constructeur mal utilisé : fournir geom_data, aeroCoeffs, weight, xcg ou au moins 11 paramètres.');
             end
+            obj.xac = obj.hac*obj.wingChord;
+            obj.xcg = obj.hcg * obj.wingChord;
         end
 
         function displayInfo(obj)

@@ -1,16 +1,13 @@
-function [outputArg1,outputArg2] = f_moment(inputArg1,inputArg2)
+function m_aero = f_moment(alpha, delta, fn, cms, dist, altitude_m, isa_dev, mach_nb, plane)
 %F_MOMENT Summary of this function goes here
 %   Detailed explanation goes here
-arguments (Input)
-    inputArg1
-    inputArg2
-end
 
-arguments (Output)
-    outputArg1
-    outputArg2
-end
+rho = m_atmos.f_density(altitude_m, isa_dev);
+v = m_convert.f_mach_to_tas(mach_nb, altitude_m, isa_dev);
+my = 1/2*rho*v^2*plane.wingChord*plane.wingArea*cms;
 
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
+L = plane.weight*9.81 - fn * sind(alpha); % phi_t
+
+m_aero = dist * L - my;
+
 end

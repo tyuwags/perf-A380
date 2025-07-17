@@ -21,7 +21,7 @@ geom_data.engine.x_ref_14 = 1.70;
 geom_data.engine.z_ref_14 = 0.50;
 
 
-A380 = m_plane.Plane(geom_data, aero_data, 500000, 40);
+A380 = m_plane.Plane(geom_data, aero_data, 500000, 0.40, 0.25);
 
 %% % Définition des données géométriques de l'avion
 % Données de l'aile
@@ -44,5 +44,7 @@ NOx = m_engine.f_emision_indices(12000, 0.8, 20, m_engine.pollutant.NOx, wf)
 CO2 = m_engine.f_emision_indices(12000, 0.8, 20, m_engine.pollutant.CO2, wf)
 UHC = m_engine.f_emision_indices(12000, 0.8, 20, m_engine.pollutant.UHC, wf)
 CO = m_engine.f_emision_indices(12000, 0.8, 20, m_engine.pollutant.CO, wf)
+
+m_trim.f_trim(12000, 0.8, 20, A380)
 
 
