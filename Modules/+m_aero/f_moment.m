@@ -1,13 +1,17 @@
-function m_aero = f_moment(alpha, delta, fn, cms, dist, altitude_m, isa_dev, mach_nb, plane)
+function m_ac = f_moment(alpha, delta, Fn, altitude_m, isa_dev, mach_nb, plane)
 %F_MOMENT Summary of this function goes here
 %   Detailed explanation goes here
 
 rho = m_atmos.f_density(altitude_m, isa_dev);
 v = m_convert.f_mach_to_tas(mach_nb, altitude_m, isa_dev);
-my = 1/2*rho*v^2*plane.wingChord*plane.wingArea*cms;
 
-L = plane.weight*9.81 - fn * sind(alpha); % phi_t
+[cls, cds, cms] = m_aero.f_aero_coeffs(plane, alpha, mach_nb, delta);
 
-m_aero = dist * L - my;
+L = 0.5 * rho * v^2 * plane.wingArea * cls;
+
+D = 0.5 * rho * v^2 * plane.wingArea * cds; %?
+
+
+m_ac = 0.5 * rho * v^2 * plane.wingChord * plane.wingArea * cms - L * (plane.xcg - plane.xac);
 
 end

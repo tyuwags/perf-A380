@@ -1,10 +1,10 @@
-function [clht, cdht, cmht] = f_stab_coeffs(aero_data, alpha_ht_deg, mach_nb, downwash)
+function [clht, cdht, cmht] = f_stab_coeffs(plane, alpha_ht_deg, mach_nb, downwash)
 
-clht = interpn(aero_data.f_clht.x_alpha, aero_data.f_clht.y_mach, ...
-    aero_data.f_clht.value, alpha_ht_deg, mach_nb);
+clht = interpn(plane.aeroCoeffs.f_clht.x_alpha, plane.aeroCoeffs.f_clht.y_mach, ...
+    plane.aeroCoeffs.f_clht.value, alpha_ht_deg, mach_nb);
 
-cdht = interpn(aero_data.f_cdht.x_alpha, aero_data.f_cdht.y_mach, ...
-    aero_data.f_cdht.value, alpha_ht_deg, mach_nb);
+cdht = interpn(plane.aeroCoeffs.f_cdht.x_alpha, plane.aeroCoeffs.f_cdht.y_mach, ...
+    plane.aeroCoeffs.f_cdht.value, alpha_ht_deg, mach_nb);
 
 
 

@@ -1,4 +1,4 @@
-classdef Plane
+classdef Plane < handle
     properties
         % Géométrie aile
         wingArea
@@ -11,84 +11,59 @@ classdef Plane
 
         % Moteurs
         numEngines
-        enginePosCenter
-        enginePosOuter
+        enginePositions % [x, z] pour chaque moteur
 
-        % Coefficients aérodynamiques (sous-structures .f_clwb, etc.)
+        % Coefficients aérodynamiques
         aeroCoeffs
 
-        % Poids de l'avion (en N ou kg à préciser)
-        weight
+        % Poids
+        startingWeight
 
-        % Centre de gravité
+        currentWeight
+
+        % Centre de gravité (h en % corde)
         hcg
         xcg
 
-        % Centre aérodynamique
+        % Centre aérodynamique (h en % corde)
         hac
         xac
-        
+
+        % Angle du moteur dans le repère avion
+        phi_t
     end
 
     methods
         function obj = Plane(varargin)
-            if nargin >= 1 && isstruct(varargin{1})
-                % --- Mode structuré avec geom_data + autres structures ---
-                geom = varargin{1};
-
-                % Vérifications minimales
-                if nargin < 5
-                    error('En mode structuré, utilisez : Plane(geom_data, aeroCoeffs, weight, hcg, hac)');
-                end
-
-                obj.wingArea = geom.wing.S_ref;
-                obj.wingChord = geom.wing.c_ref;
-
-                obj.stabArea = geom.stab.S_ref;
-                obj.stabX = geom.stab.x_ref;
-                obj.stabZ = geom.stab.z_ref;
-
-                obj.numEngines = 4; % À modifier
-                obj.enginePosCenter = [geom.engine.x_ref_23, geom.engine.z_ref_23];
-                obj.enginePosOuter  = [geom.engine.x_ref_14, geom.engine.z_ref_14];
-
-                obj.aeroCoeffs = varargin{2}; % ex: aero_data
-                obj.weight = varargin{3};
-                obj.hcg = varargin{4};
-                obj.hac = varargin{5};
-
+            if nargin == 1 && isstruct(varargin{1})
+                error('Mode structuré : veuillez aussi fournir aeroCoeffs, weight, hcg, hac, phi_t');
+            elseif nargin >= 1 && isstruct(varargin{1})
+                obj = obj.buildFromStruct(varargin{:});
             elseif nargin >= 11
-                % --- Mode à l'ancienne : tous les champs à la main ---
-                obj.wingArea = varargin{1};
-                obj.wingChord = varargin{2};
-                obj.stabArea = varargin{3};
-                obj.stabX = varargin{4};
-                obj.stabZ = varargin{5};
-                obj.numEngines = varargin{6};
-                obj.enginePosCenter = varargin{7};
-                obj.enginePosOuter = varargin{8};
-                obj.aeroCoeffs = varargin{9};
-                obj.weight = varargin{10};
-                obj.hcg = varargin{11};
-                obj.hac = varargin{12};
+                obj = obj.buildFromArgs(varargin{:});
             else
-                error('Constructeur mal utilisé : fournir geom_data, aeroCoeffs, weight, xcg ou au moins 11 paramètres.');
+                error(['Constructeur mal utilisé. Utilisez :' newline ...
+                       '  Plane(geom_data, aeroCoeffs, weight, hcg, hac, phi_t)' newline ...
+                       'ou Plane(wingArea, wingChord, stabArea, stabX, stabZ, enginePositions, aeroCoeffs, weight, hcg, hac, phi_t)']);
             end
-            obj.xac = obj.hac*obj.wingChord;
-            obj.xcg = obj.hcg * obj.wingChord;
+
+            % Calculs dérivés
+            obj.xac = obj.hac * obj.wingChord / 100;
+            obj.xcg = obj.hcg * obj.wingChord / 100;
+            obj.currentWeight = obj.startingWeight;
         end
 
         function displayInfo(obj)
             fprintf('--- Caractéristiques de l''avion ---\n');
             fprintf('Aile : %.2f m², corde %.2f m\n', obj.wingArea, obj.wingChord);
             fprintf('Stabilisateur : %.2f m² à (x=%.2f, z=%.2f)\n', ...
-                    obj.stabArea, obj.stabX, obj.stabZ);
+                obj.stabArea, obj.stabX, obj.stabZ);
             fprintf('Moteurs : %d moteur(s)\n', obj.numEngines);
-            fprintf('  - Position centrale : [%.2f, %.2f]\n', obj.enginePosCenter);
-            if ~isempty(obj.enginePosOuter)
-                fprintf('  - Position externe  : [%.2f, %.2f]\n', obj.enginePosOuter);
+            for i = 1:obj.numEngines/2
+                fprintf('  - Moteur %d à [x=%.2f, z=%.2f]\n', ...
+                    i, obj.enginePositions(i, 1), obj.enginePositions(i, 2));
             end
-            fprintf('Poids : %.2f\n', obj.weight);
+            fprintf('Poids : %.2f\n', obj.currentWeight);
             fprintf('Centre de gravité (xcg) : %.2f m\n', obj.xcg);
 
             if isfield(obj.aeroCoeffs, 'f_clwb')
@@ -100,6 +75,72 @@ classdef Plane
             if isfield(obj.aeroCoeffs, 'f_cmwb')
                 fprintf('CM : Table avec %d valeurs\n', numel(obj.aeroCoeffs.f_cmwb.value));
             end
+        end
+
+        function resetWeight(obj)
+            obj.currentWeight = obj.startingWeight;
+        end
+
+        function fuelConsumed(obj, fuel_kg)
+            obj.currentWeight = obj.currentWeight - fuel_kg;
+        end
+
+    end
+
+    methods (Access = private)
+        function obj = buildFromStruct(obj, geom, aeroCoeffs, weight, hcg, hac, phi_t)
+            % Extraction géométrie aile et stabilisateur
+            obj.wingArea = geom.wing.S_ref;
+            obj.wingChord = geom.wing.c_ref;
+            obj.stabArea = geom.stab.S_ref;
+            obj.stabX = geom.stab.x_ref;
+            obj.stabZ = geom.stab.z_ref;
+
+            % Détection des moteurs
+            enginePositions = [];
+            if isfield(geom.engine, 'x_ref_14') && isfield(geom.engine, 'x_ref_23')
+                enginePositions = [
+                    geom.engine.x_ref_14, geom.engine.z_ref_14;
+                    geom.engine.x_ref_23, geom.engine.z_ref_23
+                ];
+            elseif isfield(geom.engine, 'x_ref')
+                enginePositions = [
+                    geom.engine.x_ref, geom.engine.z_ref
+                ];
+            else
+                error("Champ geom.engine incomplet ou invalide.");
+            end
+
+            obj.enginePositions = enginePositions;
+            obj.numEngines = size(enginePositions, 1) * 2;
+
+            % Autres données
+            obj.aeroCoeffs = aeroCoeffs;
+            obj.startingWeight = weight;
+            obj.hcg = hcg;
+            obj.hac = hac;
+            obj.phi_t = phi_t;
+        end
+
+        function obj = buildFromArgs(obj, wingArea, wingChord, stabArea, stabX, stabZ, ...
+                                     enginePositions, aeroCoeffs, weight, hcg, hac, phi_t)
+            % Construction directe à partir de paramètres
+            if size(enginePositions, 2) ~= 2
+                error('enginePositions doit être une matrice Nx2 de [x z] par moteur.');
+            end
+
+            obj.wingArea = wingArea;
+            obj.wingChord = wingChord;
+            obj.stabArea = stabArea;
+            obj.stabX = stabX;
+            obj.stabZ = stabZ;
+            obj.enginePositions = enginePositions;
+            obj.numEngines = size(enginePositions, 1) * 2;
+            obj.aeroCoeffs = aeroCoeffs;
+            obj.startingWeight = weight;
+            obj.hcg = hcg;
+            obj.hac = hac;
+            obj.phi_t = phi_t;
         end
     end
 end
