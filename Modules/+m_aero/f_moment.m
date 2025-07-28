@@ -1,4 +1,4 @@
-function m_ac = f_moment(alpha, delta, Fn, altitude_m, isa_dev, mach_nb, plane)
+function m_ac = f_moment(alpha, delta, altitude_m, isa_dev, mach_nb, plane)
 %F_MOMENT Summary of this function goes here
 %   Detailed explanation goes here
 

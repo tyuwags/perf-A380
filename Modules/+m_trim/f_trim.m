@@ -32,7 +32,6 @@ while condition
     alpha_0 = alpha;
     delta_0 = delta; 
     fn_0 = fn; 
-
     L = plane.currentWeight * g0 - fn * sind(alpha + phi_t);
     q = 1/2 * rho * V_t^2;
     Cl = L / (q*plane.wingArea);
@@ -46,12 +45,13 @@ while condition
 
     % disp(m_aero.f_moment(alpha, delta, fn, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, fn, phi_t))
 
-    delta = fzero(@(stab) m_aero.f_moment(alpha, stab, fn, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, alpha, fn, phi_t), [(-15 + m_aero.f_downwash(alpha)) (15 - m_aero.f_downwash(alpha))]);
+    delta = fzero(@(stab) m_aero.f_moment(alpha, stab, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, alpha, fn, phi_t), [(-15 + m_aero.f_downwash(alpha)) (15 - m_aero.f_downwash(alpha))]);
 
     condition = eps_alpha > abs(alpha - alpha_0) || eps_delta > abs(delta - delta_0) || eps_fn > abs(fn - fn_0);
     
 end
 
+fn/4
 wf = m_engine.f_thrust_to_fuel(altitude_m, mach_nb, isa_dev, fn/4);
 
 end

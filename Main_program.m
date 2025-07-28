@@ -69,7 +69,7 @@ fb_values = zeros(size(altitudes));
 for i = 1:length(altitudes)
     altitude = altitudes(i);
     A380.resetWeight();
-    [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 3, 0, 13000);
+    [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
     fb_values(i) = fb;
 end
 
