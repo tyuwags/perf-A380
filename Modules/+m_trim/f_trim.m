@@ -31,6 +31,8 @@ rho = m_atmos.f_density(altitude_m, isa_dev);
 max_iter = 100;
 iter = 0;
 
+options = optimset('Display', 'off');
+
 while condition
     alpha_0 = alpha;
     delta_0 = delta; 
@@ -40,19 +42,21 @@ while condition
     q = 1/2 * rho * V_t^2;
     Cl = L / (q*plane.wingArea);
 
-    try
-        alpha = fzero(@(a) m_aero.f_aero_coeffs(plane, a, mach_nb, delta) - Cl, [-2 15]);
-    catch ME
-        disp(Cl);
-        disp(delta);
-        disp(fn);
-        disp(alpha);
-        disp(plane.currentWeight);
-        for a = -1.9:0.1:14.9
-            disp(m_aero.f_aero_coeffs(plane, a, mach_nb, delta));
-        end
-        rethrow(ME);
-    end
+    alpha = fsolve(@(a) m_aero.f_aero_coeffs(plane, a, mach_nb, delta) - Cl, 0, options);
+
+    % try
+        
+    % catch ME
+    %     disp(Cl);
+    %     disp(delta);
+    %     disp(fn);
+    %     disp(alpha);
+    %     disp(plane.currentWeight);
+    %     for a = -1.9:0.1:14.9
+    %         disp(m_aero.f_aero_coeffs(plane, a, mach_nb, delta));
+    %     end
+    %     rethrow(ME);
+    % end
 
     % max_alpha = fzero(@(a) a - m_aero.f_downwash(a) + delta - 8, [-15 15]);
     % min_alpha = fzero(@(a) a - m_aero.f_downwash(a) + delta + 8, [-15 15]);
@@ -63,7 +67,7 @@ while condition
     fn = D/(cosd(alpha + phi_t));
 
     % disp(m_aero.f_moment(alpha, delta, fn, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, fn, phi_t))
-    delta = fzero(@(stab) m_aero.f_moment(alpha, stab, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, alpha, fn, phi_t), [(-12) (5)]);
+    delta = fsolve(@(stab) m_aero.f_moment(alpha, stab, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, alpha, fn, phi_t), 0, options);
 
 
     iter = iter+1;

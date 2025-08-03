@@ -12,9 +12,9 @@ alpha_ht = alpha_deg - downwash + dstab;
 
 cls = clwb + plane.stabArea/plane.wingArea*(clht*cosd(downwash) - cdht*sind(downwash));
 
-cds = cdwb + plane.stabArea/plane.wingArea*(cdht*cosd(downwash) + clht*sind(downwash));
+cds = cdwb + plane.stabArea/plane.wingArea*(cdht*cosd(downwash) - clht*sind(downwash));
 
-cms = cmwb - plane.stabArea*plane.stabX/(plane.wingArea*plane.wingChord)*(clht*cosd(downwash) - cdht*sind(downwash)) + plane.stabArea*plane.stabZ/(plane.wingArea*plane.wingChord)*(cdht*cosd(downwash) + clht*sind(downwash));
+cms = cmwb - plane.stabArea*plane.stabX/(plane.wingArea*plane.wingChord)*(clht*cosd(downwash) + cdht*sind(downwash)) + plane.stabArea*plane.stabZ/(plane.wingArea*plane.wingChord)*(cdht*cosd(downwash) - clht*sind(downwash));
 
 %%% End of the function
 end
