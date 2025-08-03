@@ -9,8 +9,6 @@ theta = m_atmos.f_theta(altitude_m, isa_dev);
 
 delta = m_atmos.f_delta(altitude_m);
 
-n1 = n1 / sqrt(theta);
-
 W_fmax_c = W_fmax / (delta * sqrt(theta));
 
 % Modèle de débit carburant
@@ -26,7 +24,7 @@ f_wf = @(x, y) (p00 + p10*x + p01*y + p20*x^2 + p11*x*y + p02*y^2 + ...
     p31*x^3*y + p22*x^2*y^2 + p13*x*y^3 + p50*x^5 + p41*x^4*y + ...
     p32*x^3*y^2 + p23*x^2*y^3) * 2;
 
-f_wf = f_wf(n1, mach_nb) * W_fmax_c; % output wfc
+f_wf = f_wf(n1 / sqrt(theta), mach_nb) * W_fmax_c; % output wfc
 
 %f_wf = f_wf / (delta * sqrt(theta));
 end

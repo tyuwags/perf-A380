@@ -5,7 +5,7 @@ function fuelflow_kgps = f_fuel_flow(altitude_m , mach_nb, ...
 
 n1 = m_engine.f_fan_speed(altitude_m, isa_dev, mode);
 
-fuelflow_kgps = m_engine.f_fuel_flow_model(n1, mach_nb, altitude_m, isa_dev);
+fuelflow_kgps = m_engine.f_fuel_flow_model(altitude_m, mach_nb, isa_dev, n1);
 
 %%% End of function
 end

@@ -14,11 +14,11 @@ function pressure_Pa = f_pressure(altitude_m, isa_dev)
 
     if altitude_m <= 11000
         T = m_atmos.f_temperature(altitude_m, isa_dev);
-        pressure_Pa = P0 * (T / T0)^(-g / (L * R));
+        pressure_Pa = P0 * (1 + L * altitude_m / T0)^(-g / (L * R));
     else
         % Étape 1 : pression à 11 000 m
         T_11 = m_atmos.f_temperature(11000, isa_dev);
-        P_11 = P0 * (T_11 / T0)^(-g / (L * R));
+        P_11 = P0 * (1 + L * 11000 / T0)^(-g / (L * R));
         
         % Étape 2 : isotherme au-dessus de 11 000 m
         T = T_11; % reste constant

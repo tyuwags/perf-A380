@@ -38,9 +38,11 @@ m_convert.f_mach_to_cas(m_convert.f_cas_to_mach(154.33, 6250, 0), 6250)
 
 mode = m_engine.mode.nmcl;
 
+delta = m_atmos.f_delta(12000);
+
 fn = m_engine.f_thrust(12000, 0.8, 20, mode)
 wf = m_engine.f_fuel_flow(12000, 0.8, 20, mode)
-wf = m_engine.f_thrust_to_fuel(12000, 0.8, 20, fn)
+%wf = m_engine.f_thrust_to_fuel(12000, 0.8, 20, (fn/4))
 
 NOx = m_engine.f_emision_indices(12000, 0.8, 20, m_engine.pollutant.NOx, wf)
 CO2 = m_engine.f_emision_indices(12000, 0.8, 20, m_engine.pollutant.CO2, wf)

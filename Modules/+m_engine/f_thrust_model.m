@@ -7,11 +7,9 @@ delta = m_atmos.f_delta(altitude_m);
 
 theta = m_atmos.f_theta(altitude_m, isa_dev);
 
-n1 = n1 / sqrt(theta);
-
 F_nmax_c = F_nmax / delta;
 
-    % Modèle de poussée:
+% Modèle de poussée:
 p00 = +0.0072538779; p01 = -0.0152486559; p02 = -0.2872341189;
 p03 = +0.1855958598; p10 = -0.0018632306; p11 = -0.0015972827;
 p12 = +0.0047803814; p13 = -0.0067222190; p20 = +0.0002148330;
@@ -24,7 +22,7 @@ f_fn = @(x, y) p00 + p10*x + p01*y + p20*x^2 + p11*x*y + p02*y^2 + ...
     p31*x^3*y + p22*x^2*y^2 + p13*x*y^3 + p50*x^5 + p41*x^4*y + ...
     p32*x^3*y^2 + p23*x^2*y^3;
 
-fn = f_fn(n1, mach_nb) * F_nmax_c;
+fn = f_fn(n1 / sqrt(theta), mach_nb) * F_nmax_c;
 
 %fn = fn * delta;
 
