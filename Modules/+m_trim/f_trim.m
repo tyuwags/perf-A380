@@ -1,15 +1,15 @@
-function wf = f_trim(altitude_m, mach_nb, isa_dev, ...
+function [wf, alpha, delta, fn] = f_trim(altitude_m, mach_nb, isa_dev, ...
     plane)
 %F_TRIM Summary of this function goes here
 %   Detailed explanation goes here
 
-fn_max = 332.44 * 10^3 * 4;
+fn_max = 332.44 * 10^3;
 
 g0 = 9.81;
 phi_t = plane.phi_t;
 
-eps_alpha = 10^-3;
-eps_delta = 10^-3;
+eps_alpha = 10^-1;
+eps_delta = 10^-1;
 eps_fn = 10^0;
 
 alpha = 0;
@@ -28,6 +28,9 @@ rho = m_atmos.f_density(altitude_m, isa_dev);
 
 % return
 
+max_iter = 5;
+iter = 0;
+
 while condition
     alpha_0 = alpha;
     delta_0 = delta; 
@@ -37,7 +40,7 @@ while condition
     Cl = L / (q*plane.wingArea);
 
 
-    alpha = fzero(@(a) m_aero.f_aero_coeffs(plane, a, mach_nb, delta) - Cl, [-2 15]);
+    alpha = fzero(@(a) (m_aero.f_aero_coeffs(plane, a, mach_nb, delta) - Cl)^2, [-2 15]);
     [cls, cds, cms] = m_aero.f_aero_coeffs(plane, alpha, mach_nb, delta);
     D = q * plane.wingArea * cds;
 
@@ -45,13 +48,14 @@ while condition
 
     % disp(m_aero.f_moment(alpha, delta, fn, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, fn, phi_t))
 
-    delta = fzero(@(stab) m_aero.f_moment(alpha, stab, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, alpha, fn, phi_t), [(-15 + m_aero.f_downwash(alpha)) (15 - m_aero.f_downwash(alpha))]);
+    delta = fzero(@(stab) m_aero.f_moment(alpha, stab, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, alpha, fn, phi_t), [(-14.9 + m_aero.f_downwash(alpha) - alpha) (14.9 + m_aero.f_downwash(alpha) - alpha)]);
 
-    condition = eps_alpha > abs(alpha - alpha_0) || eps_delta > abs(delta - delta_0) || eps_fn > abs(fn - fn_0);
+    iter = iter+1;
+
+    condition = (eps_alpha > abs(alpha - alpha_0) || eps_delta > abs(delta - delta_0) || eps_fn > abs(fn - fn_0)) && iter < max_iter;
     
 end
 
-fn/4
 wf = m_engine.f_thrust_to_fuel(altitude_m, mach_nb, isa_dev, fn/4);
 
 end

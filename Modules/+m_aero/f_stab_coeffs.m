@@ -8,7 +8,7 @@ cdht = interpn(plane.aeroCoeffs.f_cdht.x_alpha, plane.aeroCoeffs.f_cdht.y_mach, 
 
 
 
-cmht = cdht*cosd(downwash) + clht*sind(downwash) - clht*cosd(downwash) + cdht*sind(downwash);
+cmht = 0;
 
 %%% End of the function
 end

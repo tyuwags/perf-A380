@@ -10,11 +10,12 @@ alpha_ht = alpha_deg - downwash + dstab;
 [clht, cdht, cmht] = m_aero.f_stab_coeffs(plane, alpha_ht, mach_nb, downwash);
 
 
-cls = clwb + plane.stabArea/plane.wingArea*(cosd(downwash) - sind(downwash))*clht;
-cds = cdwb + plane.stabArea/plane.wingArea*(cosd(downwash) + sind(downwash))*cdht;
+cls = clwb + plane.stabArea/plane.wingArea*(clht*cosd(downwash) - cdht*sind(downwash));
 
-cmht = cdht*cosd(downwash) + clht*sind(downwash) - clht*cosd(downwash) + cdht*sind(downwash);
-cms = cmwb + plane.stabArea*plane.stabX/(plane.wingArea*plane.wingChord)*cmht;
+cds = cdwb + plane.stabArea/plane.wingArea*(cdht*cosd(downwash) + clht*sind(downwash));
+
+cms = cmwb - plane.stabArea*plane.stabX/(plane.wingArea*plane.wingChord)*(clht*cosd(downwash) - cdht*sind(downwash)) + plane.stabArea*plane.stabZ/(plane.wingArea*plane.wingChord)*(cdht*cosd(downwash) + clht*sind(downwash));
 
 %%% End of the function
 end
+

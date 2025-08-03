@@ -26,9 +26,9 @@ while dist > x
     delta_x = m_convert.f_length(min(25, dist - x), 'naut mi', 'm');
     vgs = m_convert.f_mach_to_tas(mach_nb, altitude_m, isa_dev) + vw;
     delta_t = delta_x/vgs;
-    wf = m_trim.f_trim(altitude_m, mach_nb, isa_dev, plane);
+    [wf, alpha, delta, fn] = m_trim.f_trim(altitude_m, mach_nb, isa_dev, plane);
 
-    m = m - wf * delta_t;
+    m = m - wf * 4 * delta_t;
     plane.fuelConsumed(wf*delta_t);
     fb = fb + wf * delta_t;
     x = x + m_convert.f_length(vgs*delta_t, 'm', 'naut mi');
