@@ -3,7 +3,7 @@ function [wf, alpha, delta, fn] = f_trim(altitude_m, mach_nb, isa_dev, ...
 %F_TRIM Summary of this function goes here
 %   Detailed explanation goes here
 
-fn_max = 332.44 * 10^3;
+fn_max = 332.44 * 10^3 * 4;
 
 g0 = 9.81;
 phi_t = plane.phi_t;
@@ -40,7 +40,16 @@ while condition
     Cl = L / (q*plane.wingArea);
 
 
-    alpha = fzero(@(a) (m_aero.f_aero_coeffs(plane, a, mach_nb, delta) - Cl)^2, [-2 15]);
+    try
+        alpha = fzero(@(a) m_aero.f_aero_coeffs(plane, a, mach_nb, delta) - Cl, [-1.9 14.9]);
+    catch ME
+        disp(Cl);
+        disp(delta);
+        disp(plane.currentWeight);
+        for a = -1.9:0.1:14.9
+            disp(m_aero.f_aero_coeffs(plane, a, mach_nb, delta));
+        end
+    end
     [cls, cds, cms] = m_aero.f_aero_coeffs(plane, alpha, mach_nb, delta);
     D = q * plane.wingArea * cds;
 
