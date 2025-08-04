@@ -83,29 +83,29 @@ A380.resetWeight();
 A380.currentWeight
 
 
-altitudes = 3000:500:15000; % step of 500 m (adjust as needed)
-fb_values = zeros(size(altitudes));
+% altitudes = 3000:500:16000; % step of 500 m (adjust as needed)
+% fb_values = zeros(size(altitudes));
 
-% Loop through altitudes
-for i = 1:length(altitudes)
-    altitude = altitudes(i);
-    fprintf('altitude = %d\n', altitude);
-    A380.resetWeight();
-    [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
-    fb_values(i) = fb;
-end
+% % Loop through altitudes
+% for i = 1:length(altitudes)
+%     altitude = altitudes(i);
+%     fprintf('altitude = %d\n', altitude);
+%     A380.resetWeight();
+%     [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
+%     fb_values(i) = fb;
+% end
 
-% Display results
-disp('Altitude (m)    fb')
-disp([altitudes' fb_values'])
+% % Display results
+% disp('Altitude (m)    fb')
+% disp([altitudes' fb_values'])
 
-% Optional: Plot the result
-figure;
-plot(altitudes, fb_values, '-o');
-xlabel('Altitude (m)');
-ylabel('Fuel Burn (fb)');
-title('Fuel Burn vs Altitude');
-grid on;
+% % Optional: Plot the result
+% figure;
+% plot(altitudes, fb_values, '-o');
+% xlabel('Altitude (m)');
+% ylabel('Fuel Burn (fb)');
+% title('Fuel Burn vs Altitude');
+% grid on;
 
 %% Détermination des Mach MRC et LRC
 
@@ -114,6 +114,7 @@ altitude = 11000; % [m]
 ISA_dev = 0;
 V_W = 0;
 
+A380.resetWeight();
 % Obtenir masse et centrage courant
 masse = A380.currentWeight;
 xcg = A380.xcg;

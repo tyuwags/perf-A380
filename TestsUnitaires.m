@@ -188,6 +188,59 @@ classdef TestsUnitaires < matlab.unittest.TestCase
 
         end
 
+        function testFuelFlowAltitude(testCase)
+            % Test : Débit de carburant diminue à haute altitude
+            altitude_low = 0;      % Niveau de la mer
+            altitude_high = 11000; % Altitude de croisière
+            mach = 0.8;           % Mach
+            isa_dev = 0;          % Déviation ISA
+            n1 = 100;              % Vitesse N1 (%)
+
+            delta_low = m_atmos.f_delta(altitude_low);
+            theta_low = m_atmos.f_theta(altitude_low, isa_dev);
+            fuel_low = m_engine.f_fuel_flow_model(altitude_low, mach, isa_dev, n1)*delta_low*sqrt(theta_low);
+
+            delta_high = m_atmos.f_delta(altitude_high);
+            theta_high = m_atmos.f_theta(altitude_high, isa_dev);
+            fuel_high = m_engine.f_fuel_flow_model(altitude_high, mach, isa_dev, n1)*delta_high*sqrt(theta_high);
+
+            % Le débit de carburant à haute altitude doit être inférieur
+            testCase.verifyGreaterThan(fuel_low, fuel_high, ...
+                'Le débit de carburant devrait diminuer avec l''altitude.');
+        end
+
+        function testFuelFlowMach(testCase)
+            % Test : Débit de carburant augmente avec le nombre de Mach
+            altitude = 11000; % Altitude de croisière
+            mach_low = 0.7;
+            mach_high = 0.85;
+            isa_dev = 0; % Déviation ISA
+            n1 = 85;     % Vitesse N1 (%)
+
+            fuel_low = m_engine.f_fuel_flow_model(altitude, mach_low, isa_dev, n1);
+            fuel_high = m_engine.f_fuel_flow_model(altitude, mach_high, isa_dev, n1);
+
+            % Le débit de carburant doit augmenter avec le nombre de Mach
+            testCase.verifyGreaterThan(fuel_high, fuel_low, ...
+                'Le débit de carburant devrait augmenter avec le nombre de Mach.');
+        end
+
+        function testFuelFlowN1(testCase)
+            % Test : Débit de carburant augmente avec N1
+            altitude = 11000; % Altitude de croisière
+            mach = 0.8;       % Mach
+            isa_dev = 0;      % Déviation ISA
+            n1_low = 75;      % N1 bas (%)
+            n1_high = 85;     % N1 haut (%)
+
+            fuel_low = m_engine.f_fuel_flow_model(altitude, mach, isa_dev, n1_low);
+            fuel_high = m_engine.f_fuel_flow_model(altitude, mach, isa_dev, n1_high);
+
+            % Le débit de carburant doit augmenter avec N1
+            testCase.verifyGreaterThan(fuel_high, fuel_low, ...
+                'Le débit de carburant devrait augmenter avec N1.');
+        end
+
 
         function testTrim(testCase)
             % Paramètres d'entrée pour l'équilibrage

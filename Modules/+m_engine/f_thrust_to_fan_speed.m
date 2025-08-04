@@ -7,8 +7,11 @@ residual = @(n1) (m_engine.f_thrust_model(altitude_m, mach_nb, isa_dev, n1) - th
 % m_engine.f_thrust_model(altitude_m, mach_nb, isa_dev, 100)
 % thrust_n_c
 
-n1_guess = [0 100];
+n1_guess = 50;
 
-n1_out = fzero(residual, n1_guess);
+options = optimset('Display', 'off');
+
+
+n1_out = fsolve(residual, n1_guess, options);
 
 end

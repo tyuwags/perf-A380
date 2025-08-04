@@ -77,9 +77,11 @@ while condition
 end
 
 % SFC = 0.6;
+delta = m_atmos.f_delta(altitude_m);
+theta = m_atmos.f_theta(altitude_m, isa_dev);
 
 % wf = m_convert.f_mass(m_convert.f_force(fn, 'N', 'lbf') * SFC, 'lbm', 'kg')/3600;
 
-wf = m_engine.f_thrust_to_fuel(altitude_m, mach_nb, isa_dev, fn/4)*4;
+wf = m_engine.f_thrust_to_fuel(altitude_m, mach_nb, isa_dev, fn/4)*4*delta*sqrt(theta);
 
 end

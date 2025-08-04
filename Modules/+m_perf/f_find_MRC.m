@@ -1,6 +1,6 @@
 function [Mach_MRC, SR_MRC, Mach_vect, SR_vect] = f_find_MRC(altitude, ISA_dev, V_W, plane)
     % Définition du vecteur de Mach
-    Mach_vect = 0.5 : 0.01 : 0.89;
+    Mach_vect = 0.1 : 0.01 : 0.89;
     SR_vect = zeros(size(Mach_vect));
 
     % Calcul du Specific Range pour chaque Mach
