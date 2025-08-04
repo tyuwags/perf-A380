@@ -58,13 +58,14 @@ classdef Plane < handle
             fprintf('Aile : %.2f m², corde %.2f m\n', obj.wingArea, obj.wingChord);
             fprintf('Stabilisateur : %.2f m² à (x=%.2f, z=%.2f)\n', ...
                 obj.stabArea, obj.stabX, obj.stabZ);
-            fprintf('Moteurs : %d moteur(s)\n', obj.numEngines);
+            fprintf('Moteurs : %d moteurs\n', obj.numEngines);
             for i = 1:obj.numEngines/2
-                fprintf('  - Moteur %d à [x=%.2f, z=%.2f]\n', ...
-                    i, obj.enginePositions(i, 1), obj.enginePositions(i, 2));
+                fprintf('  - Moteurs à [x=%.2f, z=%.2f]\n', ...
+                    obj.enginePositions(i, 1), obj.enginePositions(i, 2));
             end
-            fprintf('Poids : %.2f\n', obj.currentWeight);
-            fprintf('Centre de gravité (xcg) : %.2f m\n', obj.xcg);
+            fprintf('Poids : %.2f kg\n', obj.currentWeight);
+            fprintf('Centre de gravité (xcg) : %.2f m, Pourcentage du centre de gravité (hcg): %d %% \n', obj.xcg, obj.hcg);
+            fprintf('Centre aérodynamique (xac) : %.2f m, Pourcentage du centre aérodynamique (hac): %d %% \n', obj.xac, obj.hac);
 
             if isfield(obj.aeroCoeffs, 'f_clwb')
                 fprintf('CL : Table avec %d valeurs\n', numel(obj.aeroCoeffs.f_clwb.value));

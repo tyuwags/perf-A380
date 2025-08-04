@@ -83,29 +83,34 @@ A380.resetWeight();
 A380.currentWeight
 
 
-% altitudes = 3000:500:16000; % step of 500 m (adjust as needed)
-% fb_values = zeros(size(altitudes));
+altitudes = 3000:500:16000; % step of 500 m (adjust as needed)
+fb_values = zeros(size(altitudes));
+A380.resetWeight();
 
-% % Loop through altitudes
-% for i = 1:length(altitudes)
-%     altitude = altitudes(i);
-%     fprintf('altitude = %d\n', altitude);
-%     A380.resetWeight();
-%     [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
-%     fb_values(i) = fb;
-% end
 
-% % Display results
-% disp('Altitude (m)    fb')
-% disp([altitudes' fb_values'])
+[wf, alpha, delta, fn] = m_trim.f_trim(11000, 0.8, 0, A380)
+return
 
-% % Optional: Plot the result
-% figure;
-% plot(altitudes, fb_values, '-o');
-% xlabel('Altitude (m)');
-% ylabel('Fuel Burn (fb)');
-% title('Fuel Burn vs Altitude');
-% grid on;
+% Loop through altitudes
+for i = 1:length(altitudes)
+    altitude = altitudes(i);
+    fprintf('altitude = %d\n', altitude);
+    A380.resetWeight();
+    [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
+    fb_values(i) = fb;
+end
+
+% Display results
+disp('Altitude (m)    fb')
+disp([altitudes' fb_values'])
+
+% Optional: Plot the result
+figure;
+plot(altitudes, fb_values, '-o');
+xlabel('Altitude (m)');
+ylabel('Fuel Burn (kg)');
+title('Fuel Burn vs Altitude sur 10 000 m.n.');
+grid on;
 
 %% Détermination des Mach MRC et LRC
 
