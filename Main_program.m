@@ -22,8 +22,14 @@ geom_data.engine.z_ref_14 = 0.50;
 
 phi_t = 2;
 
+fn_max = 332.44 * 10^3 * 4;
 
-A380 = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t);
+alpha = 5;
+delta = 0;
+fn = fn_max * 0.4;
+n1 = 0;
+
+A380 = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t, alpha, delta, fn, n1);
 
 %% % Définition des données géométriques de l'avion
 % Données de l'aile
@@ -83,21 +89,21 @@ A380.resetWeight();
 A380.currentWeight
 
 
-altitudes = 3000:500:16000; % step of 500 m (adjust as needed)
+altitudes = 7000:500:16000; % step of 500 m (adjust as needed)
 fb_values = zeros(size(altitudes));
 A380.resetWeight();
 
 
 [wf, alpha, delta, fn] = m_trim.f_trim(11000, 0.8, 0, A380)
-return
 
 % Loop through altitudes
 for i = 1:length(altitudes)
     altitude = altitudes(i);
-    fprintf('altitude = %d\n', altitude);
+    fprintf('\naltitude = %d\n', altitude);
     A380.resetWeight();
     [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
     fb_values(i) = fb;
+    A380.displayInfo();
 end
 
 % Display results
@@ -145,3 +151,16 @@ ylabel('Specific Range (m/kg)');
 title(sprintf('Specific Range vs Mach (Altitude = %d m)', altitude));
 legend show;
 grid on;
+
+%% Tests sur des distances réelles
+
+opts = detectImportOptions('airport-codes.csv');
+opts.SelectedVariableNames = {'ident','iata_code','icao_code','coordinates'};
+airports = readtable('airport-codes.csv', opts);
+coords = split(airports.coordinates, ',');
+airports.Latitude = str2double(coords(:,2));
+airports.Longitude = str2double(coords(:,1));
+
+dist = m_convert.f_length(f_airport_distance("YUL", "CDG", airports), 'km', 'naut mi')
+[~, fb, ~] = m_trajectory.f_state_cruise(13000, 0.8, 0, A380, dist, 0, 0)
+A380.displayInfo()

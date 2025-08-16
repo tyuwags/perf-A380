@@ -31,6 +31,11 @@ classdef Plane < handle
 
         % Angle du moteur dans le repère avion
         phi_t
+
+        currentAlpha;
+        currentDelta;
+        currentFn;
+        currentFanSpeed;
     end
 
     methods
@@ -67,6 +72,13 @@ classdef Plane < handle
             fprintf('Centre de gravité (xcg) : %.2f m, Pourcentage du centre de gravité (hcg): %d %% \n', obj.xcg, obj.hcg);
             fprintf('Centre aérodynamique (xac) : %.2f m, Pourcentage du centre aérodynamique (hac): %d %% \n', obj.xac, obj.hac);
 
+            fprintf('Angle d''incidence courant alpha : %.2f °\n', obj.currentAlpha);
+            fprintf('Angle de position du stabilisateur horizontal courant delta : %.2f °\n', obj.currentDelta);
+            fprintf('Poussée courante : %.2f N\n', obj.currentFn);
+            fprintf('Pourcentage de rotation des moteurs : %.2f %%\n', obj.currentFanSpeed);
+
+
+
             if isfield(obj.aeroCoeffs, 'f_clwb')
                 fprintf('CL : Table avec %d valeurs\n', numel(obj.aeroCoeffs.f_clwb.value));
             end
@@ -86,10 +98,26 @@ classdef Plane < handle
             obj.currentWeight = obj.currentWeight - fuel_kg;
         end
 
+        function setAlpha(obj, alpha)
+            obj.currentAlpha = alpha;
+        end
+
+        function setDelta(obj, delta)
+            obj.currentDelta = delta;
+        end
+
+        function setThrust(obj, fn)
+            obj.currentFn = fn;
+        end
+
+        function setFanSpeed(obj, n1)
+            obj.currentFanSpeed = n1;
+        end
+
     end
 
     methods (Access = private)
-        function obj = buildFromStruct(obj, geom, aeroCoeffs, weight, hcg, hac, phi_t)
+        function obj = buildFromStruct(obj, geom, aeroCoeffs, weight, hcg, hac, phi_t, alpha, delta, fn, n1)
             % Extraction géométrie aile et stabilisateur
             obj.wingArea = geom.wing.S_ref;
             obj.wingChord = geom.wing.c_ref;
@@ -121,10 +149,14 @@ classdef Plane < handle
             obj.hcg = hcg;
             obj.hac = hac;
             obj.phi_t = phi_t;
+            obj.currentAlpha = alpha;
+            obj.currentDelta = delta;
+            obj.currentFn = fn;
+            obj.currentFanSpeed = n1;
         end
 
         function obj = buildFromArgs(obj, wingArea, wingChord, stabArea, stabX, stabZ, ...
-                                     enginePositions, aeroCoeffs, weight, hcg, hac, phi_t)
+                                     enginePositions, aeroCoeffs, weight, hcg, hac, phi_t, alpha, delta, fn, n1)
             % Construction directe à partir de paramètres
             if size(enginePositions, 2) ~= 2
                 error('enginePositions doit être une matrice Nx2 de [x z] par moteur.');
@@ -142,6 +174,11 @@ classdef Plane < handle
             obj.hcg = hcg;
             obj.hac = hac;
             obj.phi_t = phi_t;
+            obj.currentAlpha = alpha;
+            obj.currentDelta = delta;
+            obj.currentFn = fn;
+            obj.currentFanSpeed = n1;
+
         end
     end
 end

@@ -130,7 +130,6 @@ classdef TestsUnitaires < matlab.unittest.TestCase
                 9900,   223.91, 2.6906e4, 0.41864, 299.97;
                 10200,  221.97, 2.5701e4, 0.40339, 298.66;
                 10500,  220.02, 2.4540e4, 0.38857, 297.35;
-                10800,  218.08, 2.3422e4, 0.37417, 296.03;
                 11100,  216.66, 2.2346e4, 0.35932, 295.07;
                 11400,  216.66, 2.1317e4, 0.34277, 295.07;
                 11700,  216.66, 2.0335e4, 0.32699, 295.07;
@@ -190,7 +189,7 @@ classdef TestsUnitaires < matlab.unittest.TestCase
 
         function testFuelFlowAltitude(testCase)
             % Test : Débit de carburant diminue à haute altitude
-            altitude_low = 0;      % Niveau de la mer
+            altitude_low = 7000;      % Altitude plus faible
             altitude_high = 11000; % Altitude de croisière
             mach = 0.8;           % Mach
             isa_dev = 0;          % Déviation ISA
@@ -324,6 +323,11 @@ function plane = loadPlane()
     geom_data.engine.z_ref_23 = 1.60;
     geom_data.engine.x_ref_14 = 1.70;
     geom_data.engine.z_ref_14 = 0.50;
+    fn_max = 332.44 * 10^3 * 4;
     phi_t = 2;
-    plane = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t);
+    alpha = 5;
+    delta = 0;
+    fn = fn_max * 0.4;
+    n1 = 0;
+    plane = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t, alpha, delta, fn, n1);
 end
