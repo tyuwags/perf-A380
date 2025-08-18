@@ -3,7 +3,7 @@ function indices = f_emission_CO(altitude_m, mach_nb, ...
 %F_EMISSION_CO Summary of this function goes here
 %   Detailed explanation goes here
 
-CO = [33.58 1.27 0.09 0.11];
+CO = [12.65 1.05 0.31 0.33];
 
 indices_ref = m_engine.f_fuel_to_indices(altitude_m, mach_nb, isa_dev, wfc_ref, CO);
 

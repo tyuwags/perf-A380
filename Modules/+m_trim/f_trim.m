@@ -1,4 +1,4 @@
-function [wf, alpha, delta_stab, fn] = f_trim(altitude_m, mach_nb, isa_dev, ...
+function [wf, alpha, delta_stab, gamma, fn] = f_trim(altitude_m, mach_nb, isa_dev, ...
     plane)
 %F_TRIM Summary of this function goes here
 %   Detailed explanation goes here
@@ -21,12 +21,6 @@ condition = true;
 V_t = m_convert.f_mach_to_tas(mach_nb, altitude_m, isa_dev);
 rho = m_atmos.f_density(altitude_m, isa_dev);
 
-% deltas = linspace(-2, 15, 100);
-% moments = arrayfun(@(d) m_aero.f_moment(alpha, d, fn, altitude_m, isa_dev, mach_nb, plane) + m_engine.f_moment(plane, fn, phi_t), deltas);
-% plot(deltas, moments); grid on;
-% xlabel('\delta_{stab}'); ylabel('Moment total');
-
-% return
 
 max_iter = 100;
 iter = 0;
@@ -44,22 +38,6 @@ while condition
 
     alpha = fsolve(@(a) m_aero.f_aero_coeffs(plane, a, mach_nb, delta_stab) - Cl, 0, options);
 
-    % try
-        
-    % catch ME
-    %     disp(Cl);
-    %     disp(delta);
-    %     disp(fn);
-    %     disp(alpha);
-    %     disp(plane.currentWeight);
-    %     for a = -1.9:0.1:14.9
-    %         disp(m_aero.f_aero_coeffs(plane, a, mach_nb, delta));
-    %     end
-    %     rethrow(ME);
-    % end
-
-    % max_alpha = fzero(@(a) a - m_aero.f_downwash(a) + delta - 8, [-15 15]);
-    % min_alpha = fzero(@(a) a - m_aero.f_downwash(a) + delta + 8, [-15 15]);
 
     [cls, cds, cms] = m_aero.f_aero_coeffs(plane, alpha, mach_nb, delta_stab);
     D = q * plane.wingArea * cds;
@@ -79,9 +57,12 @@ end
 delta = m_atmos.f_delta(altitude_m);
 theta = m_atmos.f_theta(altitude_m, isa_dev);
 
+gamma = 0;
+
 plane.setAlpha(alpha);
 plane.setDelta(delta_stab);
 plane.setThrust(fn);
+plane.setGamma(gamma);
 % fn/4/delta < m_engine.f_thrust_model(altitude_m, mach_nb, isa_dev, 100)
 plane.setFanSpeed(m_engine.f_thrust_to_fan_speed(altitude_m, mach_nb, isa_dev, fn/4/delta));
 

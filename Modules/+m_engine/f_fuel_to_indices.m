@@ -2,10 +2,9 @@ function indices_ref = f_fuel_to_indices(altitude_m, mach_nb, isa_dev, wfc, indi
 %F_FUEL_TO_FAN_SPEED Summary of this function goes here
 %   Detailed explanation goes here
 
-fan_speed = log([7 30 85 100]);
+wfc_ref = log([0.261 0.749 2.262 2.738]);
 
-n1 = m_engine.f_fuel_flow_to_speed_fan(altitude_m, mach_nb, isa_dev, wfc);
 
-indices_ref = exp(interp1(fan_speed, log(indices_array), log(n1), 'linear'));
+indices_ref = exp(interp1(wfc_ref, log(indices_array), log(wfc), 'spline'));
 
 end

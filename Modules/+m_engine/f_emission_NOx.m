@@ -3,7 +3,9 @@ function indices = f_emission_NOx(altitude_m, mach_nb, ...
 %F_EMISSION_NOX Summary of this function goes here
 %   Detailed explanation goes here
 
-NOx = [5.24 12.9 31.37 41.73];
+NOx = [5.57 12.37 31.3 41.34];
+
+
 
 indices_ref = m_engine.f_fuel_to_indices(altitude_m, mach_nb, isa_dev, wfc_ref, NOx);
 

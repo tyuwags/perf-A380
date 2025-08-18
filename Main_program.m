@@ -24,12 +24,13 @@ phi_t = 2;
 
 fn_max = 332.44 * 10^3 * 4;
 
-alpha = 5;
+alpha = 0;
 delta = 0;
 fn = fn_max * 0.4;
 n1 = 0;
+gamma = 0;
 
-A380 = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t, alpha, delta, fn, n1);
+A380 = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t, alpha, delta, fn, n1, gamma);
 
 %% % Définition des données géométriques de l'avion
 % Données de l'aile
@@ -69,7 +70,7 @@ A380.displayInfo()
 
 m_trim.f_trim(m_convert.f_length(36500, 'ft', 'm'), 0.8, 0, A380)
 
-[m, fb, x] = m_trajectory.f_state_cruise(9000, 0.8, 0, A380, 3000, 0, 3, 13000)
+% [m, fb, x] = m_trajectory.f_state_cruise(9000, 0.8, 0, A380, 3000, 0, 3, 13000, m_engine.mode.nmcl)
 
 A380.currentWeight
 
@@ -91,6 +92,10 @@ A380.currentWeight
 
 altitudes = 7000:500:16000; % step of 500 m (adjust as needed)
 fb_values = zeros(size(altitudes));
+CO_values = zeros(size(altitudes));
+NOx_values = zeros(size(altitudes));
+UHC_values = zeros(size(altitudes));
+CO2_values = zeros(size(altitudes));
 A380.resetWeight();
 
 
@@ -101,8 +106,13 @@ for i = 1:length(altitudes)
     altitude = altitudes(i);
     fprintf('\naltitude = %d\n', altitude);
     A380.resetWeight();
-    [~, fb, ~] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
+    [~, fb, ~, CO, NOx, UHC, CO2] = m_trajectory.f_state_cruise(altitude, 0.8, 0, A380, 10000, 0, 0);
     fb_values(i) = fb;
+    fbc = fb / (m_atmos.f_delta(altitude)*sqrt(m_atmos.f_theta(altitude, 0)));
+    CO_values(i) = CO;
+    NOx_values(i) = NOx;
+    CO2_values(i) = CO2;
+    UHC_values(i) = UHC;
     A380.displayInfo();
 end
 
@@ -117,6 +127,13 @@ xlabel('Altitude (m)');
 ylabel('Fuel Burn (kg)');
 title('Fuel Burn vs Altitude sur 10 000 m.n.');
 grid on;
+
+figure;
+semilogy(altitudes, CO_values, altitudes, NOx_values, altitudes, CO2_values, altitudes, UHC_values);
+xlabel('Altitude (m)');
+title("Quantité d'émissions éjecté en fonction de l'altitude sur 10 000 m.n.");
+ylabel("Masse d'émissions (kg)")
+legend({'CO','NOx', 'CO_2', 'UHC'},'Location','best');
 
 %% Détermination des Mach MRC et LRC
 
@@ -161,6 +178,71 @@ coords = split(airports.coordinates, ',');
 airports.Latitude = str2double(coords(:,2));
 airports.Longitude = str2double(coords(:,1));
 
-dist = m_convert.f_length(f_airport_distance("YUL", "CDG", airports), 'km', 'naut mi')
-[~, fb, ~] = m_trajectory.f_state_cruise(13000, 0.8, 0, A380, dist, 0, 0)
-A380.displayInfo()
+% Paramètres du vol
+altitude = 11000;        % m
+mach = Mach_LRC;              % Mach
+origin = "YUL";
+destination = "CDG";
+
+% Distance (en naut. miles)
+dist = m_convert.f_length(m_trajectory.f_airport_distance(origin, destination, airports), 'km', 'naut mi');
+
+% Simulation du vol en croisière
+[~, fb, ~, mass_CO, mass_NOx, mass_UHC, mass_CO2] = m_trajectory.f_state_cruise(altitude, mach, 0, A380, dist, 0, 0);
+
+altitude_max = 13000;
+
+% Création du tableau
+Results = table( ...
+    ["Fuel Burn (kg)"; "CO (kg)"; "NOx (kg)"; "CO2 (kg)"; "UHC (kg)"], ...
+    [fb; mass_CO; mass_NOx; mass_CO2; mass_UHC], ...
+    'VariableNames', {'Quantité', 'Valeur'});
+
+% Affichage
+disp("=== Résultats du vol " + origin + " → " + destination + " ===");
+disp("Altitude = " + altitude + " m, Mach = " + mach);
+disp(Results);
+
+[~, fb, ~, mass_CO, mass_NOx, mass_UHC, mass_CO2] = m_trajectory.f_state_cruise(altitude, mach, 0, A380, dist, 0, 1, altitude_max, m_engine.mode.nmcl);
+
+
+% Création du tableau
+Results = table( ...
+    ["Fuel Burn (kg)"; "CO (kg)"; "NOx (kg)"; "CO2 (kg)"; "UHC (kg)"], ...
+    [fb; mass_CO; mass_NOx; mass_CO2; mass_UHC], ...
+    'VariableNames', {'Quantité', 'Valeur'});
+
+% Affichage
+disp("=== Résultats du vol " + origin + " → " + destination + " ===");
+disp("Altitude initiale = " + altitude + " m, Altitude finale = " + altitude_max + " m, Mach = " + mach + ", step climb = 1");
+disp(Results);
+
+[~, fb, ~, mass_CO, mass_NOx, mass_UHC, mass_CO2] = m_trajectory.f_state_cruise(altitude, mach, 0, A380, dist, 0, 2, altitude_max, m_engine.mode.nmcl);
+
+
+% Création du tableau
+Results = table( ...
+    ["Fuel Burn (kg)"; "CO (kg)"; "NOx (kg)"; "CO2 (kg)"; "UHC (kg)"], ...
+    [fb; mass_CO; mass_NOx; mass_CO2; mass_UHC], ...
+    'VariableNames', {'Quantité', 'Valeur'});
+
+% Affichage
+disp("=== Résultats du vol " + origin + " → " + destination + " ===");
+disp("Altitude initiale = " + altitude + " m, Altitude finale = " + altitude_max + " m, Mach = " + mach + ", step climb = 2");
+disp(Results);
+
+[~, fb, ~, mass_CO, mass_NOx, mass_UHC, mass_CO2] = m_trajectory.f_state_cruise(altitude, mach, 0, A380, dist, 0, 10, altitude_max, m_engine.mode.nmcl);
+
+
+% Création du tableau
+Results = table( ...
+    ["Fuel Burn (kg)"; "CO (kg)"; "NOx (kg)"; "CO2 (kg)"; "UHC (kg)"], ...
+    [fb; mass_CO; mass_NOx; mass_CO2; mass_UHC], ...
+    'VariableNames', {'Quantité', 'Valeur'});
+
+% Affichage
+disp("=== Résultats du vol " + origin + " → " + destination + " ===");
+disp("Altitude initiale = " + altitude + " m, Altitude finale = " + altitude_max + " m, Mach = " + mach + ", step climb = 10");
+disp(Results);
+
+

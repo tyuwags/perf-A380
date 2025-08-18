@@ -1,14 +1,3 @@
-function [lat, lon] = findAirportCoords(code, airports)
-    idxIata = strcmpi(airports.iata_code, code);
-    idxIcao = strcmpi(airports.icao_code, code);
-    idx = find(idxIata | idxIcao, 1);
-    if isempty(idx)
-        error('Code d''aéroport non trouvé : %s', code);
-    end
-    lat = airports.Latitude(idx);
-    lon = airports.Longitude(idx);
-end
-
 function dist_km = f_airport_distance(code1, code2, airports)
     [lat1, lon1] = findAirportCoords(code1, airports);
     [lat2, lon2] = findAirportCoords(code2, airports);
@@ -22,3 +11,16 @@ function dist_km = f_airport_distance(code1, code2, airports)
     c = 2 * atan2(sqrt(a), sqrt(1-a));
     dist_km = R * c;
 end
+
+
+function [lat, lon] = findAirportCoords(code, airports)
+    idxIata = strcmpi(airports.iata_code, code);
+    idxIcao = strcmpi(airports.icao_code, code);
+    idx = find(idxIata | idxIcao, 1);
+    if isempty(idx)
+        error('Code d''aéroport non trouvé : %s', code);
+    end
+    lat = airports.Latitude(idx);
+    lon = airports.Longitude(idx);
+end
+
