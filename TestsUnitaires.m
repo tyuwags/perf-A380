@@ -187,21 +187,20 @@ classdef TestsUnitaires < matlab.unittest.TestCase
 
         end
 
-        function testFuelFlowAltitude(testCase)
+        function testTrimAltitude(testCase)
             % Test : Débit de carburant diminue à haute altitude
-            altitude_low = 7000;      % Altitude plus faible
-            altitude_high = 11000; % Altitude de croisière
+            altitude_low = 11000;      % Altitude plus faible
+            altitude_high = 13000; % Altitude de croisière
             mach = 0.8;           % Mach
             isa_dev = 0;          % Déviation ISA
-            n1 = 100;              % Vitesse N1 (%)
 
             delta_low = m_atmos.f_delta(altitude_low);
             theta_low = m_atmos.f_theta(altitude_low, isa_dev);
-            fuel_low = m_engine.f_fuel_flow_model(altitude_low, mach, isa_dev, n1)*delta_low*sqrt(theta_low);
+            fuel_low = m_trim.f_trim(altitude_low, mach, isa_dev, loadPlane());
 
             delta_high = m_atmos.f_delta(altitude_high);
             theta_high = m_atmos.f_theta(altitude_high, isa_dev);
-            fuel_high = m_engine.f_fuel_flow_model(altitude_high, mach, isa_dev, n1)*delta_high*sqrt(theta_high);
+            fuel_high = m_trim.f_trim(altitude_high, mach, isa_dev, loadPlane());
 
             % Le débit de carburant à haute altitude doit être inférieur
             testCase.verifyGreaterThan(fuel_low, fuel_high, ...
@@ -329,5 +328,6 @@ function plane = loadPlane()
     delta = 0;
     fn = fn_max * 0.4;
     n1 = 0;
-    plane = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t, alpha, delta, fn, n1);
+    gamma = 0;
+    plane = m_plane.Plane(geom_data, aero_data, 500000, 40, 25, phi_t, alpha, delta, fn, n1, gamma);
 end
