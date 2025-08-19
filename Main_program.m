@@ -158,17 +158,29 @@ fprintf('\n--- Résultats LRC ---\n');
 fprintf('Mach LRC = %.3f\n', Mach_LRC);
 fprintf('SR LRC   = %.2f m/kg\n', SR_LRC);
 
+isa = 0;
+vw = 0;         % vent nul
+CI = 100;       % cost index arbitraire
+plane = A380;   % ou autre structure d’avion
+
+[m_econ, tas_econ, cost_min, wf_econ] = m_perf.f_econ_speed(altitude, isa, vw, CI, plane);
+SR_econ = m_perf.f_specific_range(m_econ, altitude, isa, vw, plane);
+
+fprintf("Mach ECON = %.3f, TAS = %.1f m/s, FC = %.4f\n", m_econ, tas_econ, cost_min);
+
+
 % Affichage graphique
 figure;
 plot(Mach_vect, SR_vect, 'b-', 'LineWidth', 1.5); hold on;
 plot(Mach_MRC, SR_MRC, 'ro', 'MarkerSize', 8, 'DisplayName', 'MRC');
 plot(Mach_LRC, SR_LRC, 'gs', 'MarkerSize', 8, 'DisplayName', 'LRC');
+plot(m_econ, SR_econ, 'blacko', 'MarkerSize', 8, 'DisplayName', 'ECON');
+
 xlabel('Mach');
 ylabel('Specific Range (m/kg)');
 title(sprintf('Specific Range vs Mach (Altitude = %d m)', altitude));
 legend show;
 grid on;
-
 %% Tests sur des distances réelles
 
 opts = detectImportOptions('airport-codes.csv');
