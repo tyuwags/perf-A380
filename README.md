@@ -36,10 +36,10 @@ A380 = m_plane.Plane(geom_data, aero_data, masse, xcg, phi, phi_t, alpha, delta,
 ### 3. Analyse des Performances Moteur
 
 ```matlab
-% Calcul de la poussée
+% Calcul de la poussée en montée
 fn = m_engine.f_thrust(altitude, mach, deviation_ISA, mode)
 
-% Calcul du débit carburant
+% Calcul du débit carburant en montée
 wf = m_engine.f_fuel_flow(altitude, mach, deviation_ISA, mode)
 
 % Calcul des émissions
@@ -50,8 +50,8 @@ CO2 = m_engine.f_emision_indices(altitude, mach, deviation_ISA, m_engine.polluta
 ### 4. Analyse de Croisière
 
 ```matlab
-% Simulation d'une phase de croisière
-[m, fb, x] = m_trajectory.f_state_cruise(altitude, mach, vent, avion, distance, deviation_ISA, nb_step_climb)
+% Simulation d'une phase de croisière avec step climb
+[m, fb, x] = m_trajectory.f_state_cruise(altitude, mach, vent, avion, distance, deviation_ISA, nb_step_climb, altitude_m_max, mode)
 ```
 
 ### 5. Optimisation du Vol

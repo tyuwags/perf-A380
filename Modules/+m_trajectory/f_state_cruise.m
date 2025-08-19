@@ -39,7 +39,7 @@ while dist > x
         delta_t = delta_x/vgs;
         x = x + m_convert.f_length(vgs*delta_t, 'm', 'naut mi');
     else
-        [wf, alpha, delta, gamma, fn] = m_trim.f_trim_rise(currentAltitude, mach_nb, isa_dev, plane);
+        [wf, alpha, delta, gamma, fn] = m_trim.f_trim_rise(currentAltitude, mach_nb, isa_dev, plane, mode, 0);
         delta_h = min(m_convert.f_length(1000, 'ft', 'm'), altitude_m - currentAltitude);
         v_t = m_convert.f_mach_to_tas(mach_nb, currentAltitude, isa_dev);
         delta_t = delta_h/(v_t*sind(gamma));

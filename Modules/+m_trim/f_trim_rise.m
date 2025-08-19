@@ -1,26 +1,8 @@
 function [wf, alpha, delta_stab, gamma, fn] = f_trim_rise(altitude_m, mach_nb, isa_dev, ...
-    plane, varargin)
+    plane, mode, vwprime)
 
 %F_TRIM Summary of this function goes here
 %   Detailed explanation goes here
-
-mode = [];
-vwprime = 0;
-
-% Gestion des arguments optionnels
-if ~isempty(varargin)
-    if length(varargin) >= 1
-        mode = varargin{1};
-    end
-    if length(varargin) >= 2
-        vwprime = varargin{2};
-    end
-end
-
-% Si aucun "mode" fourni → mettre une valeur par défaut
-if isempty(mode)
-    mode = m_engine.mode.nmcl;
-end
 
 fn_max = 332.44 * 10^3 * 4;
 
